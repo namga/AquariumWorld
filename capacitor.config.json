@@ -1,0 +1,6 @@
+{
+  "appId": "vn.aquariumworld.game",
+  "appName": "Aquarium World",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

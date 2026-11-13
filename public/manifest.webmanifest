@@ -1,0 +1,11 @@
+{
+  "name": "Aquarium World - Thế Giới Bể Cá",
+  "short_name": "Aquarium World",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#e6f4f0",
+  "theme_color": "#102b3a",
+  "description": "Game chăm sóc và xây dựng thủy cung 3D của riêng bạn.",
+  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

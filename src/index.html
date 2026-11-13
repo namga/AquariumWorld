@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><meta name="theme-color" content="#102b3a"><meta name="description" content="Aquarium World - xây dựng thủy cung 3D của riêng bạn"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml"><title>Aquarium World 3D</title>
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar"><a class="brand" href="#"><span class="brand-mark">◉</span><span><b>AQUARIUM <em>WORLD</em></b><small>THẾ GIỚI THỦY CUNG</small></span></a><div class="top-actions"><div class="wallet"><span>🪙</span><b id="coins">250</b></div><div class="level-chip">✦ CẤP <b id="level">1</b></div><button class="round-btn" id="soundBtn" title="Âm thanh">♫</button></div></header>
+<main>
+<section class="hero-grid">
+<div class="tank-card"><div class="tank-top"><div><span class="kicker">THỦY CUNG CỦA TÔI · 01</span><h1>Bể cá nhiệt đới</h1><p>Một góc đại dương bình yên của riêng bạn</p></div><div class="tank-state"><span class="live-dot"></span> ĐANG HOẠT ĐỘNG</div></div>
+<div class="viewport-wrap"><div id="aquarium3d" aria-label="Bể cá 3D tương tác"></div><div class="scene-hud"><span>🌡 26°C</span><span>💧 <b id="waterLabel">Nước tốt</b></span><span>🐟 <b id="fishCount">3</b> cá</span></div><div class="drag-hint">↔ Kéo để xoay · Chụm để thu phóng</div><div class="scene-tools"><button id="viewReset" title="Đặt lại góc nhìn">⌖</button><button id="viewZoomIn" title="Phóng to">＋</button><button id="viewZoomOut" title="Thu nhỏ">－</button></div></div>
+<div class="tank-foot"><span>✧ Hệ sinh thái đang phát triển</span><span id="tankMood">Bể cá khỏe mạnh</span></div></div>
+<aside class="care-card"><div class="section-head"><div><span class="kicker">CHĂM SÓC HẰNG NGÀY</span><h2>Sức khỏe thủy cung</h2></div><span class="health-pill" id="healthPill">TỐT</span></div>
+<div class="meter-item"><div class="meter-symbol food">♨</div><div class="meter-content"><div class="meter-label"><b>Thức ăn</b><strong id="foodValue">80%</strong></div><div class="meter-track"><i id="foodBar" style="width:80%"></i></div></div></div>
+<div class="meter-item"><div class="meter-symbol water">◈</div><div class="meter-content"><div class="meter-label"><b>Chất lượng nước</b><strong id="waterValue">92%</strong></div><div class="meter-track"><i id="waterBar" style="width:92%"></i></div></div></div>
+<div class="meter-item"><div class="meter-symbol clean">✧</div><div class="meter-content"><div class="meter-label"><b>Độ sạch</b><strong id="cleanValue">85%</strong></div><div class="meter-track"><i id="cleanBar" style="width:85%"></i></div></div></div>
+<div class="care-buttons"><button class="care-action featured" id="feedBtn"><span>🍤</span><b>Cho cá ăn</b><small>MIỄN PHÍ</small></button><button class="care-action" id="waterBtn"><span>💧</span><b>Thay nước</b><small>20 xu</small></button><button class="care-action" id="cleanBtn"><span>🫧</span><b>Vệ sinh</b><small>15 xu</small></button></div>
+<div class="daily-note">✦ Chăm sóc thường xuyên để cá luôn khỏe mạnh.</div></aside>
+</section>
+<section class="lower-grid"><div class="panel"><div class="section-head"><div><span class="kicker">HÀNH TRÌNH NHÀ THỦY SINH</span><h2>Nhiệm vụ hôm nay</h2></div><span class="quest-medal">✧</span></div><div class="quest-row"><span class="quest-icon">🍤</span><div class="quest-info"><b>Cho cá ăn</b><small>Giúp đàn cá no bụng</small><div class="quest-track"><i id="feedQuest"></i></div></div><strong id="feedQuestText">0/1</strong></div><div class="quest-row"><span class="quest-icon">💧</span><div class="quest-info"><b>Chăm nước sạch</b><small>Giữ nước trong và khỏe</small><div class="quest-track"><i id="waterQuest"></i></div></div><strong id="waterQuestText">0/1</strong></div><div class="reward-line">🎁 Hoàn thành cả hai nhiệm vụ · <b>+30 xu</b></div><button class="claim-btn" id="claimBtn" disabled>NHẬN THƯỞNG</button></div>
+<div class="panel collection-panel"><div class="section-head"><div><span class="kicker">SINH VẬT TRONG BỂ</span><h2>Bộ sưu tập của tôi</h2></div><span class="collection-count" id="collectionCount">03 LOÀI</span></div><div class="fish-collection" id="fishList"></div></div></section>
+<section class="panel shop-panel" id="shop"><div class="section-head"><div><span class="kicker">MỞ RỘNG THỦY CUNG</span><h2>Cửa hàng sinh vật</h2></div><span class="shop-note">Dùng xu để đón bạn mới về bể</span></div><div class="shop-grid" id="shopGrid"></div></section>
+</main><footer><span>◉ AQUARIUM WORLD <small>v2.0.0 · REALISTIC 3D</small></span><div><button id="exportBtn">Xuất dữ liệu</button><button id="importBtn">Nhập dữ liệu</button><input id="importFile" type="file" accept="application/json" hidden><button id="resetBtn">Chơi lại</button></div></footer><div class="toast" id="toast" role="status"></div>
+</div><script type="module" src="/main.js"></script></body></html>
