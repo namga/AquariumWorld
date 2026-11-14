@@ -1,4 +1,4 @@
-name: Build Aquarium World Android APK
+name: Build Aquarium World Web and Android APK
 
 on:
   workflow_dispatch:
@@ -12,30 +12,44 @@ jobs:
   build:
     name: Build Web and Android APK
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Do not enable setup-node's npm cache until a lockfile is committed.
-      # This avoids the "Dependencies lock file is not found" setup failure.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Set up Java
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
+      # Pin a known command-line tools revision rather than relying on
+      # the runner's default SDK manager revision.
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '11479570'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Install dependencies
+      - name: Verify Android toolchain
+        run: |
+          java -version
+          node --version
+          npm --version
+          sdkmanager --version
+          adb version
+
+      - name: Install npm dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Build web assets
+      - name: Build Web app
         run: npm run build
 
       - name: Add Android platform if absent
@@ -44,27 +58,33 @@ jobs:
             npx cap add android
           fi
 
-      - name: Sync Android assets
+      - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Build debug APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon --stacktrace assembleDebug
 
+      - name: Rename APK
+        run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+            release/Aquarium-World-v2.0.2-debug.apk
+
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-World-v2.0.1-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Aquarium-World-v2.0.2-Android-APK
+          path: release/Aquarium-World-v2.0.2-debug.apk
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload Web build
         uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-World-v2.0.1-Web
+          name: Aquarium-World-v2.0.2-Web
           path: dist/
           if-no-files-found: error
           retention-days: 14

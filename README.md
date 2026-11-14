@@ -1,4 +1,4 @@
-# Aquarium World v2.0.0 — Realistic 3D
+# Aquarium World v2.0.2 — Realistic 3D
 
 Nâng cấp trực tiếp từ source v1.0.0. Một codebase dùng cho Web/PWA và Android qua Capacitor.
 
@@ -52,3 +52,9 @@ Three.js được đóng gói vào bundle Vite nên mô hình 3D không cần t�
 - Removed `cache: npm` from `actions/setup-node@v4`; the repository does not commit a package-lock file, and npm cache setup requires one.
 - The workflow now runs `npm install` first, builds the web assets, adds the Android platform only when missing, syncs Capacitor, and builds the debug APK.
 - Uploads separate Android APK and Web build artifacts.
+
+
+## v2.0.2 – Android build pipeline
+- Uses `android-actions/setup-android@v4` and pins command-line tools 13.0 to avoid the failing default SDK manager revision observed in the previous GitHub Actions run.
+- Installs Android SDK Platform 35 and Build Tools 35.0.0 explicitly.
+- APK artifact is named `Aquarium-World-v2.0.2-debug.apk`.

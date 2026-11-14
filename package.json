@@ -1,6 +1,6 @@
 {
   "name": "aquarium-world",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Aquarium World - Realistic 3D aquarium game for Web and Android",
   "scripts": {

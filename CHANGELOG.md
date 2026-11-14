@@ -6,3 +6,9 @@
 - Added touch-friendly orbit, zoom and camera reset controls.
 - Preserved core care/economy/quest/shop/local-save game systems.
 - Added JSON progress export/import and updated Capacitor/Vite Android build pipeline.
+
+## v2.0.2 – Android SDK setup stabilization
+- Upgrade `android-actions/setup-android` to v4.
+- Pin Android command-line tools to revision 13.0 (11479570) instead of the runner's default 16.0.
+- Explicitly install Android platform 35, build-tools 35.0.0, and platform-tools.
+- Add toolchain verification and export APK with a recognizable versioned filename.
