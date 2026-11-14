@@ -46,3 +46,9 @@ Tiến trình được lưu cục bộ trên từng thiết bị (localStorage).
 
 ## Lưu ý kỹ thuật
 Three.js được đóng gói vào bundle Vite nên mô hình 3D không cần tải thư viện từ CDN khi chạy. 3D được dựng từ hình học procedural, chưa dùng model 3D nghệ thuật bên ngoài. Hiệu năng phụ thuộc GPU/thiết bị; renderer giới hạn pixel ratio trên mobile.
+
+
+## v2.0.1 – GitHub Actions fix
+- Removed `cache: npm` from `actions/setup-node@v4`; the repository does not commit a package-lock file, and npm cache setup requires one.
+- The workflow now runs `npm install` first, builds the web assets, adds the Android platform only when missing, syncs Capacitor, and builds the debug APK.
+- Uploads separate Android APK and Web build artifacts.

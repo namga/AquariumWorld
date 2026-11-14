@@ -1,38 +1,70 @@
 name: Build Aquarium World Android APK
+
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
+
 permissions:
   contents: read
+
 jobs:
   build:
+    name: Build Web and Android APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Do not enable setup-node's npm cache until a lockfile is committed.
+      # This avoids the "Dependencies lock file is not found" setup failure.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - uses: actions/setup-java@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
+
       - name: Build web assets
         run: npm run build
+
       - name: Add Android platform if absent
-        run: npx cap add android || true
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+
       - name: Sync Android assets
         run: npx cap sync android
+
       - name: Build APK
         working-directory: android
-        run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
-      - uses: actions/upload-artifact@v4
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-World-v2.0.0-Android-APK
+          name: Aquarium-World-v2.0.1-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aquarium-World-v2.0.1-Web
+          path: dist/
           if-no-files-found: error
           retention-days: 14
