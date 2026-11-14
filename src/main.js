@@ -9,7 +9,7 @@ const defaults = {
   fish:['guppy','neon','gold'], plants:[], decor:[],
   quests:{feed:0,water:0}, claimed:false,
   createdAt:Date.now(), bornAt:{}, theme:'bright',
-  autoFeed:false, feedTime:'08:00', lastAutoFeedDate:'',
+  autoFeed:false, feedTime:'08:00', lastAutoFeedDate:'', quality:'high',
   photos:[], layout:{}
 };
 function load(){
@@ -53,6 +53,7 @@ const decor=[
  {id:'temple',name:'Tiểu cảnh cổ',emoji:'🏛️',price:150,desc:'Ngôi đền dưới nước'}
 ];
 const aquarium=createAquarium($('aquarium3d'));
+aquarium.setQuality(state.quality||'high');
 let activeShop='creatures';
 let scheduleTimer=null;
 function toast(msg){
@@ -270,16 +271,17 @@ $('viewZoomIn').onclick=()=>aquarium.zoom(-.8);
 $('viewZoomOut').onclick=()=>aquarium.zoom(.8);
 $('photoBtn').onclick=takePhoto;$('photoSceneBtn').onclick=takePhoto;$('takePhotoBtn').onclick=takePhoto;
 $('settingsPhotoBtn').onclick=takePhoto;
-$('settingsBtn').onclick=()=>{$('themeSelect').value=state.theme;$('autoFeedToggle').checked=state.autoFeed;$('feedTime').value=state.feedTime;$('settingsModal').hidden=false};
+$('settingsBtn').onclick=()=>{$('themeSelect').value=state.theme;$('qualitySelect').value=state.quality||'high';$('autoFeedToggle').checked=state.autoFeed;$('feedTime').value=state.feedTime;$('settingsModal').hidden=false};
 $('closeSettings').onclick=()=>{$('settingsModal').hidden=true};
 $('settingsModal').addEventListener('click',e=>{if(e.target===$('settingsModal'))$('settingsModal').hidden=true});
 $('themeSelect').onchange=e=>{applyTheme(e.target.value);localStorage.setItem('aquarium-world-save-v2',JSON.stringify(state))};
+$('qualitySelect').onchange=e=>{state.quality=e.target.value;aquarium.setQuality(state.quality);localStorage.setItem('aquarium-world-save-v2',JSON.stringify(state));toast('Đã đổi chất lượng đồ họa: '+e.target.value.toUpperCase())};
 $('autoFeedToggle').checked=state.autoFeed;$('feedTime').value=state.feedTime;
 $('saveScheduleBtn').onclick=saveSchedule;
 document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{activeShop=b.dataset.shopTab;renderShop()});
 $('soundBtn').onclick=()=>toast('Âm thanh môi trường sẽ được bổ sung ở bản kế tiếp.');
 $('resetBtn').onclick=()=>{if(confirm('Bạn muốn xóa tiến trình và bắt đầu lại từ đầu?')){aquarium.setStudioMode(false);$('studioPanel').hidden=true;state={...structuredClone(defaults),createdAt:Date.now()};save();toast('Đã tạo một thủy cung mới!')}};
-$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Aquarium World',version:'2.1.0',savedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Aquarium-World-save.json';a.click();URL.revokeObjectURL(a.href);toast('Đã xuất bản sao lưu tiến trình!')};
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Aquarium World',version:'2.3.0',savedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Aquarium-World-save.json';a.click();URL.revokeObjectURL(a.href);toast('Đã xuất bản sao lưu tiến trình!')};
 $('importBtn').onclick=()=>$('importFile').click();
 $('importFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const obj=JSON.parse(await file.text());const s=obj.state||obj;if(!Array.isArray(s.fish)||typeof s.coins!=='number')throw Error('invalid');state={...defaults,...s,quests:{...defaults.quests,...s.quests},plants:s.plants||[],decor:s.decor||[],bornAt:s.bornAt||{},photos:s.photos||[],layout:s.layout||{}};save();applyTheme(state.theme);toast('Đã nhập tiến trình thành công!')}catch{toast('File sao lưu không hợp lệ.')}e.target.value=''};
 $('exportPhotosBtn').onclick=()=>{if(!state.photos.length){toast('Album chưa có ảnh.');return}state.photos.forEach((p,i)=>setTimeout(()=>downloadData(p.data,`Aquarium-World-album-${i+1}.jpg`),i*350));toast('Đang xuất ảnh trong album...')};

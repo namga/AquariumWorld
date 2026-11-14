@@ -1,3 +1,11 @@
+## v2.3.0 – Realistic Aquascape
+
+- Reworked procedural fish with higher-resolution body meshes, sculpted tail/dorsal/anal/pectoral fins, eyes, gill details and subtle scale highlights.
+- Replaced primitive plant blobs with curved stems and lance-shaped leaves; added a denser instanced foreground carpet.
+- Improved irregular rock silhouettes, driftwood branches, physically based water material, lighting and shadow resolution.
+- Added Low / Medium / High / Ultra graphics settings, persisted on the device.
+- Preserved existing Aquascape Studio, aquarium care, real-time growth, photo album and saved layouts.
+
 # Changelog
 
 ## 2.0.0 — Realistic 3D
@@ -26,6 +34,12 @@
 - New procedural 3D inhabitants: shrimp, nerite snails and mini crabs.
 - New aquatic plant collection and decorative objects: corals, driftwood, caves and temple miniature.
 - Real-time age progression based on actual elapsed time, including visible age stages, gradual size and color changes.
+
+## v2.3.0 – Realistic Aquascape
+
+- Reworked fish models with higher-detail bodies, articulated fin shapes, eyes, gill details and scale highlights.
+- Replaced primitive plant forms with curved stems and lance-shaped leaves; improved carpet vegetation, rocks, driftwood, water material and lighting.
+- Added Low / Medium / High / Ultra 3D graphics quality controls.
 
 ## v2.2.0 – Aquascape Studio
 - New free-layout editor for the aquarium 3D scene.

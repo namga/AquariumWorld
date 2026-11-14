@@ -3,12 +3,13 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export function createAquarium(host) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#b8e4e7');
-  scene.fog = new THREE.Fog('#b8e4e7', 13, 25);
+  scene.background = new THREE.Color('#8fcbd2');
+  scene.fog = new THREE.Fog('#8fcbd2', 16, 30);
   const camera = new THREE.PerspectiveCamera(39, 1, 0.1, 80);
   camera.position.set(0, 5.1, 10.6);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.physicallyCorrectLights = true;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -26,10 +27,11 @@ export function createAquarium(host) {
   controls.minPolarAngle = Math.PI * .16;
   controls.enablePan = false;
 
-  scene.add(new THREE.HemisphereLight(0xe7ffff, 0x456a52, 2.0));
-  const key = new THREE.DirectionalLight(0xfff4d9, 3.2);
-  key.position.set(-4, 9, 6); key.castShadow = true; key.shadow.mapSize.set(1024,1024); scene.add(key);
-  const blueFill = new THREE.PointLight(0x75d8ef, 22, 16); blueFill.position.set(3,5,-3); scene.add(blueFill);
+  scene.add(new THREE.HemisphereLight(0xe7fbff, 0x304b3c, 1.65));
+  const key = new THREE.DirectionalLight(0xfff5df, 3.8);
+  key.position.set(-3, 10, 4); key.castShadow = true; key.shadow.mapSize.set(2048,2048); key.shadow.camera.left=-8; key.shadow.camera.right=8; key.shadow.camera.top=8; key.shadow.camera.bottom=-8; scene.add(key);
+  const blueFill = new THREE.PointLight(0x55cce5, 15, 18); blueFill.position.set(3,5,-3); scene.add(blueFill);
+  const rimLight = new THREE.DirectionalLight(0x9fe8d5, 1.1); rimLight.position.set(4,4,-7); scene.add(rimLight);
 
   const root = new THREE.Group(); scene.add(root);
   const glass = new THREE.MeshPhysicalMaterial({ color: 0xc9f5f5, transparent: true, opacity: .12, roughness: .08, metalness: 0, transmission: .25, thickness: .15, side: THREE.DoubleSide, depthWrite: false });
@@ -42,28 +44,51 @@ export function createAquarium(host) {
   for(const xx of [-x,x]) for(const zz of [-z,z]) bar([xx,0,zz],[xx,tankH,zz]);
   for(const yy of [0,tankH]){bar([-x,yy,-z],[x,yy,-z]);bar([-x,yy,z],[x,yy,z]);bar([-x,yy,-z],[-x,yy,z]);bar([x,yy,-z],[x,yy,z]);}
   const waterGeo=new THREE.BoxGeometry(9.78,4.55,4.58);
-  const waterMat=new THREE.MeshPhysicalMaterial({color:0x76dce5,transparent:true,opacity:.13,roughness:.1,metalness:0,side:THREE.DoubleSide,depthWrite:false});
+  const waterMat=new THREE.MeshPhysicalMaterial({color:0x8bdde5,transparent:true,opacity:.075,roughness:.045,metalness:0,ior:1.333,thickness:.7,side:THREE.DoubleSide,depthWrite:false});
   const water=new THREE.Mesh(waterGeo,waterMat);water.position.y=2.38;root.add(water);
   const sandMat=new THREE.MeshStandardMaterial({color:0xc5b28a,roughness:.95});
   const sand=new THREE.Mesh(new THREE.BoxGeometry(9.8,.28,4.6),sandMat);sand.position.y=.12;sand.receiveShadow=true;root.add(sand);
   const substrate=new THREE.Mesh(new THREE.BoxGeometry(9.65,.12,4.45),new THREE.MeshStandardMaterial({color:0x526c50,roughness:1}));substrate.position.y=.31;root.add(substrate);
 
-  // Natural rocks and driftwood
-  const rockMats=[0x777e70,0x8c8977,0x5c716b,0xa49b83].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.96}));
-  function rock(px,py,pz,s,idx=0){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(s,1),rockMats[idx%rockMats.length]);m.position.set(px,py,pz);m.scale.set(1,.65+Math.random()*.3,.85);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;root.add(m)}
+  // Natural aquascape: irregular stones, textured wood and botanical leaf meshes.
+  const rockMats=[0x59665d,0x77796d,0x465b58,0x928b78].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94}));
+  const rockGeo=new THREE.IcosahedronGeometry(1,3);
+  function rock(px,py,pz,size,idx=0){
+    const geo=rockGeo.clone(); const pos=geo.attributes.position;
+    for(let i=0;i<pos.count;i++){const v=new THREE.Vector3().fromBufferAttribute(pos,i);const n=1+Math.sin(v.x*9+v.y*5)*.045+Math.cos(v.z*11-v.y*4)*.035;pos.setXYZ(i,v.x*n,v.y*n,v.z*n)}
+    geo.computeVertexNormals();const m=new THREE.Mesh(geo,rockMats[idx%rockMats.length]);m.position.set(px,py,pz);m.scale.set(size*(.9+Math.random()*.25),size*(.55+Math.random()*.22),size*(.72+Math.random()*.2));m.rotation.set(Math.random()*.5,Math.random()*3,Math.random()*.35);m.castShadow=true;m.receiveShadow=true;root.add(m);
+    const fleckMat=new THREE.MeshStandardMaterial({color:0xb3ad91,roughness:1});
+    for(let k=0;k<5;k++){const f=new THREE.Mesh(new THREE.SphereGeometry(size*.025,6,5),fleckMat);f.position.set(px+(Math.random()-.5)*size,py+Math.random()*size*.25,pz+(Math.random()-.5)*size);root.add(f)}
+  }
   [[-3.8,.55,-1.3,.9,0],[-3.1,.48,-1.8,.55,1],[3.9,.5,-1.3,.85,2],[3.2,.48,-1.7,.5,0],[-2.7,.43,1.55,.45,3],[2.7,.43,1.6,.5,1]].forEach(a=>rock(...a));
-  const woodMat=new THREE.MeshStandardMaterial({color:0x76533b,roughness:.9});
-  function branch(a,b,r){const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b),d=vb.clone().sub(va);const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r*.72,r,d.length(),8),woodMat);mesh.position.copy(va.add(vb).multiplyScalar(.5));mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());mesh.castShadow=true;root.add(mesh)}
-  branch([-1.9,.45,-.6],[-.5,2.0,-.3],.18);branch([-.9,1.2,-.4],[-1.8,2.25,-.5],.10);branch([-.7,1.7,-.4],[.25,2.65,-.55],.09);branch([-.4,1.9,-.35],[.4,2.2,-.3],.08);
+  const woodMat=new THREE.MeshStandardMaterial({color:0x65452f,roughness:.82});
+  function branch(a,b,r){const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b),d=vb.clone().sub(va);const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r*.55,r,d.length(),12,4),woodMat);mesh.position.copy(va.add(vb).multiplyScalar(.5));mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());mesh.castShadow=true;mesh.receiveShadow=true;root.add(mesh);}
+  branch([-1.9,.45,-.6],[-.5,2.0,-.3],.19);branch([-.9,1.2,-.4],[-1.8,2.25,-.5],.105);branch([-.7,1.7,-.4],[.25,2.65,-.55],.095);branch([-.4,1.9,-.35],[.4,2.2,-.3],.08);branch([-1.35,1.55,-.48],[-2.35,1.92,-.35],.065);
 
-  // Fine-leaf aquatic plants
-  const greens=[0x258b55,0x4aab68,0x78bb68,0x167c61,0x9acb75].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.7,side:THREE.DoubleSide}));
+  const greens=[0x236d45,0x398b54,0x62a96a,0x176b58,0x86b86a].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.72,side:THREE.DoubleSide}));
   const plantGroups=[];
-  function plant(px,pz,count,height){const g=new THREE.Group();g.position.set(px,.36,pz);root.add(g);for(let i=0;i<count;i++){const h=height*(.55+Math.random()*.65),angle=i/count*Math.PI*2+Math.random()*.4;const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0,0),new THREE.Vector3(Math.cos(angle)*.35,h*.65,Math.sin(angle)*.35),new THREE.Vector3(Math.cos(angle)*(.45+Math.random()*.3),h,Math.sin(angle)*(.45+Math.random()*.3)));const pts=curve.getPoints(10);const geo=new THREE.BufferGeometry().setFromPoints(pts);const stem=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x398e5b}));g.add(stem);const leaf=new THREE.Mesh(new THREE.SphereGeometry(.105,7,6),greens[Math.floor(Math.random()*greens.length)]);leaf.scale.set(.65,Math.max(1,h*2.2),.28);leaf.position.copy(pts[6]);leaf.rotation.z=-.3;g.add(leaf);}plantGroups.push(g)}
-  plant(-4,-1.4,19,2.25);plant(-3.5,1.2,13,1.65);plant(4,-1.2,17,2.2);plant(3.5,1.3,12,1.7);plant(-1.8,-1.9,12,1.1);plant(2,-1.9,10,1.2);
-  // Carpet plants
-  const carpetMat=new THREE.MeshStandardMaterial({color:0x3d9a61,roughness:.85});
-  for(let i=0;i<170;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.055+Math.random()*.045,5,4),carpetMat);m.position.set((Math.random()-.5)*9.3,.38+Math.random()*.025,(Math.random()-.5)*4.2);m.scale.y=.35;root.add(m)}
+  function makeLeaf(length,width,material){
+    const shape=new THREE.Shape();shape.moveTo(0,0);shape.quadraticCurveTo(width*.8,length*.28,width*.48,length*.72);shape.quadraticCurveTo(width*.2,length,0,length*1.04);shape.quadraticCurveTo(-width*.2,length,-width*.48,length*.72);shape.quadraticCurveTo(-width*.8,length*.28,0,0);
+    const geo=new THREE.ShapeGeometry(shape,8);const leaf=new THREE.Mesh(geo,material);leaf.rotation.x=-Math.PI/2;leaf.castShadow=true;return leaf;
+  }
+  function plant(px,pz,count,height){
+    const g=new THREE.Group();g.position.set(px,.36,pz);root.add(g);
+    for(let i=0;i<count;i++){
+      const angle=i/count*Math.PI*2+Math.random()*.45,h=height*(.55+Math.random()*.65),lean=.22+Math.random()*.42;
+      const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0,0),new THREE.Vector3(Math.cos(angle)*lean*.45,h*.58,Math.sin(angle)*lean*.45),new THREE.Vector3(Math.cos(angle)*lean,h,Math.sin(angle)*lean));
+      const pts=curve.getPoints(12);const stem=new THREE.Mesh(new THREE.TubeGeometry(curve,12,.012,5,false),new THREE.MeshStandardMaterial({color:0x39764a,roughness:.85}));g.add(stem);
+      const leaf=makeLeaf(h*.48,.12+Math.random()*.07,greens[Math.floor(Math.random()*greens.length)]);leaf.position.copy(pts[5]);leaf.rotation.z=-angle;leaf.rotation.y=angle;leaf.scale.setScalar(.7+Math.random()*.5);g.add(leaf);
+      const leaf2=makeLeaf(h*.42,.1,greens[Math.floor(Math.random()*greens.length)]);leaf2.position.copy(pts[8]);leaf2.rotation.y=angle+Math.PI*.7;leaf2.rotation.z=.18;g.add(leaf2);
+    }
+    plantGroups.push(g);
+  }
+  plant(-4,-1.4,22,2.25);plant(-3.5,1.2,17,1.65);plant(4,-1.2,21,2.2);plant(3.5,1.3,16,1.7);plant(-1.8,-1.9,13,1.1);plant(2,-1.9,12,1.2);
+  // Dense foreground carpet made from tiny, flattened leaf blades rather than round pebbles.
+  const carpetMat=new THREE.MeshStandardMaterial({color:0x3c8050,roughness:.9,side:THREE.DoubleSide});
+  const carpetGeo=new THREE.PlaneGeometry(.075,.16);carpetGeo.rotateX(-Math.PI/2);
+  const carpet=new THREE.InstancedMesh(carpetGeo,carpetMat,320);const dummy=new THREE.Object3D();
+  for(let i=0;i<320;i++){dummy.position.set((Math.random()-.5)*9.2,.39,(Math.random()-.5)*4.1);dummy.rotation.set(0,Math.random()*Math.PI,0);dummy.scale.set(.55+Math.random()*.8,.5+Math.random(),.7+Math.random()*.8);dummy.updateMatrix();carpet.setMatrixAt(i,dummy.matrix)}
+  carpet.instanceMatrix.needsUpdate=true;carpet.receiveShadow=true;root.add(carpet);
 
   // Fish models assembled from procedural geometry; no external models/textures.
   const fishMats=[0xf29b51,0xf1c95e,0x4ec7c6,0xe88a9c,0x7aa8e8,0xe8e3c9,0xef7d43];
@@ -74,12 +99,30 @@ export function createAquarium(host) {
   const studioObjects=new Map();
   let selectedStudioKey=null, studioEnabled=false, dragState=null;
   let growthDays=0;
-  function makeFish(color,index){const group=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color,roughness:.32,metalness:.08});const body=new THREE.Mesh(new THREE.SphereGeometry(.34,18,14),mat);body.scale.set(1.35,.72,.66);body.castShadow=true;group.add(body);
-    const tailShape=new THREE.Shape();tailShape.moveTo(0,0);tailShape.lineTo(-.56,.36);tailShape.lineTo(-.48,0);tailShape.lineTo(-.56,-.36);tailShape.closePath();const tail=new THREE.Mesh(new THREE.ShapeGeometry(tailShape),mat);tail.position.x=-.39;tail.position.z=0;group.add(tail);group.userData.tail=tail;
-    const fin=new THREE.Mesh(new THREE.ConeGeometry(.13,.38,5),mat);fin.position.set(-.05,.28,0);fin.rotation.z=Math.PI;group.add(fin);
-    const eyeMat=new THREE.MeshBasicMaterial({color:0xffffff});const pupilMat=new THREE.MeshBasicMaterial({color:0x152b35});for(const side of [-1,1]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.055,8,8),eyeMat);eye.position.set(.27,.08,side*.205);group.add(eye);const pupil=new THREE.Mesh(new THREE.SphereGeometry(.027,7,7),pupilMat);pupil.position.set(.3,.08,side*.245);group.add(pupil)}
-    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.055,.42,.48),new THREE.MeshStandardMaterial({color:index%2?0xffffff:0xf8d58a,roughness:.5}));stripe.position.set(-.08,0,0);group.add(stripe);
-    group.userData.phase=Math.random()*Math.PI*2;group.userData.speed=.45+Math.random()*.45;group.userData.radius=.8+Math.random()*2.5;group.userData.baseY=1.45+Math.random()*1.7;group.userData.offset=Math.random()*Math.PI*2;return group;}
+  function makeFish(color,index){
+    const group=new THREE.Group();
+    const mat=new THREE.MeshPhysicalMaterial({color,roughness:.24,metalness:.02,clearcoat:.75,clearcoatRoughness:.18});
+    const finMat=new THREE.MeshPhysicalMaterial({color,roughness:.3,transparent:true,opacity:.88,side:THREE.DoubleSide,clearcoat:.45});
+    const body=new THREE.Mesh(new THREE.SphereGeometry(.34,40,28),mat);body.scale.set(1.48,.78,.68);body.castShadow=true;group.add(body);
+    const finShape=new THREE.Shape();finShape.moveTo(0,0);finShape.quadraticCurveTo(-.18,.23,-.72,.43);finShape.quadraticCurveTo(-.57,.06,-.74,-.42);finShape.quadraticCurveTo(-.25,-.2,0,0);
+    const tail=new THREE.Mesh(new THREE.ShapeGeometry(finShape,14),finMat);tail.position.x=-.43;tail.position.z=.015;tail.scale.set(1,.92,1);group.add(tail);group.userData.tail=tail;
+    const dorsalShape=new THREE.Shape();dorsalShape.moveTo(-.32,.17);dorsalShape.quadraticCurveTo(-.05,.68,.35,.25);dorsalShape.lineTo(.12,.12);dorsalShape.closePath();const dorsal=new THREE.Mesh(new THREE.ShapeGeometry(dorsalShape,12),finMat);dorsal.position.z=0;group.add(dorsal);
+    const anal=new THREE.Mesh(new THREE.ShapeGeometry(dorsalShape,10),finMat);anal.rotation.z=Math.PI;anal.position.set(-.08,-.08,0);group.add(anal);
+    for(const side of [-1,1]){
+      const pectoral=new THREE.Mesh(new THREE.SphereGeometry(.13,16,10),finMat);pectoral.scale.set(.35,.95,.12);pectoral.position.set(.02,-.02,side*.22);pectoral.rotation.z=-.45;group.add(pectoral);
+      const gill=new THREE.Mesh(new THREE.TorusGeometry(.13,.012,5,24,Math.PI*.85),new THREE.MeshStandardMaterial({color:0x805b48,roughness:.7}));gill.position.set(.22,-.01,side*.215);gill.rotation.y=side*Math.PI/2;gill.rotation.z=.4;group.add(gill);
+      const eyeWhite=new THREE.Mesh(new THREE.SphereGeometry(.052,14,12),new THREE.MeshStandardMaterial({color:0xf5f0df,roughness:.25}));eyeWhite.position.set(.31,.1,side*.205);group.add(eyeWhite);
+      const pupil=new THREE.Mesh(new THREE.SphereGeometry(.027,12,10),new THREE.MeshStandardMaterial({color:0x101d25,roughness:.12}));pupil.position.set(.34,.1,side*.247);group.add(pupil);
+      const glint=new THREE.Mesh(new THREE.SphereGeometry(.009,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));glint.position.set(.35,.115,side*.268);group.add(glint);
+    }
+    // Subtle overlapping scale glints give the body a living, iridescent surface.
+    const scaleMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.3,metalness:.18,transparent:true,opacity:.22});
+    for(let row=0;row<3;row++)for(let col=0;col<7;col++){
+      const sx=-.28+col*.09,sy=-.18+row*.16;const zside=Math.sqrt(Math.max(.03,1-(sx/.52)**2-(sy/.25)**2))*.225;
+      const scale=new THREE.Mesh(new THREE.SphereGeometry(.027,8,6),scaleMat);scale.scale.set(1,.58,.16);scale.position.set(sx,sy,zside);group.add(scale);
+    }
+    group.userData.phase=Math.random()*Math.PI*2;group.userData.speed=.45+Math.random()*.45;group.userData.radius=.8+Math.random()*2.5;group.userData.baseY=1.45+Math.random()*1.7;group.userData.offset=Math.random()*Math.PI*2;return group;
+  }
   function setFishCount(n){while(fishMeshes.length<n){const i=fishMeshes.length;const f=makeFish(fishMats[i%fishMats.length],i);fishMeshes.push(f);root.add(f)}while(fishMeshes.length>n){root.remove(fishMeshes.pop())}}
   setFishCount(3);
 
@@ -173,8 +216,8 @@ export function createAquarium(host) {
         const h=spec[1]*(.55+Math.random()*.6),a=j/spec[0]*Math.PI*2;
         const pts=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0,0),new THREE.Vector3(Math.cos(a)*.22,h*.6,Math.sin(a)*.22),new THREE.Vector3(Math.cos(a)*.4,h,Math.sin(a)*.4)).getPoints(9);
         g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:id==='redplant'?0xb75e69:id==='moss'?0x79b86a:0x398f5d})));
-        const leaf=new THREE.Mesh(new THREE.SphereGeometry(id==='anubias'?.14:.09,8,7),new THREE.MeshStandardMaterial({color:id==='redplant'?0xb75e69:id==='moss'?0x79b86a:id==='javafern'?0x4b9e5e:0x32945c,side:THREE.DoubleSide}));
-        leaf.scale.set(.8,Math.max(.8,h*1.4),.35);leaf.position.copy(pts[5]);g.add(leaf);
+        const leafMat=new THREE.MeshStandardMaterial({color:id==='redplant'?0x9f4e55:id==='moss'?0x79b86a:id==='javafern'?0x4b9e5e:0x32945c,roughness:.68,side:THREE.DoubleSide});
+        const leaf=makeLeaf(id==='anubias'?.34:.48,id==='anubias'?.2:.11,leafMat);leaf.position.copy(pts[5]);leaf.rotation.y=a;leaf.rotation.z=(j%2?-.22:.22);g.add(leaf);
       }
       const key=`plant:${id}:${index}`;
       g.userData.studioKey=key;extraPlantGroups.push(g);studioObjects.set(key,g);
@@ -305,5 +348,5 @@ export function createAquarium(host) {
     bubbles.forEach(b=>{b.position.y+=b.userData.speed*.012;if(b.position.y>4.5){b.position.y=.45;b.position.x=(Math.random()-.5)*8}b.position.x+=Math.sin(t*1.3+b.userData.phase)*.0015});
     plantGroups.forEach((g,i)=>{g.rotation.z=Math.sin(t*.8+i)*.018});controls.update();renderer.render(scene,camera)}
   animate();
-  return {setFishCount,setSpecies,setGrowth,setEnvironment,setStudioMode,selectStudioObject,getSelectedStudioKey,rotateSelected,scaleSelected,removeSelected,getStudioLayout,capturePhoto(){renderer.render(scene,camera);return renderer.domElement.toDataURL('image/jpeg',.88)},resetView(){camera.position.set(0,5.1,10.6);controls.target.set(0,2.1,0);controls.update()},zoom(delta){camera.position.addScaledVector(camera.getWorldDirection(new THREE.Vector3()),delta);controls.update()},destroy(){cancelAnimationFrame(raf);observer.disconnect();controls.dispose();renderer.domElement.removeEventListener('pointerdown',onPointerDown);renderer.domElement.removeEventListener('pointermove',onPointerMove);renderer.domElement.removeEventListener('pointerup',onPointerUp);renderer.domElement.removeEventListener('pointercancel',onPointerUp);renderer.dispose();host.removeChild(renderer.domElement)}};
+  return {setQuality(level){const settings={low:{pixel:1,shadows:false},medium:{pixel:1.35,shadows:true},high:{pixel:1.7,shadows:true},ultra:{pixel:2,shadows:true}};const q=settings[level]||settings.high;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,q.pixel));renderer.shadowMap.enabled=q.shadows;resize();},setFishCount,setSpecies,setGrowth,setEnvironment,setStudioMode,selectStudioObject,getSelectedStudioKey,rotateSelected,scaleSelected,removeSelected,getStudioLayout,capturePhoto(){renderer.render(scene,camera);return renderer.domElement.toDataURL('image/jpeg',.88)},resetView(){camera.position.set(0,5.1,10.6);controls.target.set(0,2.1,0);controls.update()},zoom(delta){camera.position.addScaledVector(camera.getWorldDirection(new THREE.Vector3()),delta);controls.update()},destroy(){cancelAnimationFrame(raf);observer.disconnect();controls.dispose();renderer.domElement.removeEventListener('pointerdown',onPointerDown);renderer.domElement.removeEventListener('pointermove',onPointerMove);renderer.domElement.removeEventListener('pointerup',onPointerUp);renderer.domElement.removeEventListener('pointercancel',onPointerUp);renderer.dispose();host.removeChild(renderer.domElement)}};
 }

@@ -7,12 +7,12 @@ if target is None:
     raise SystemExit("Android app Gradle file not found")
 text = target.read_text(encoding="utf-8")
 if re.search(r"\bversionCode\s*=?\s*\d+", text):
-    text = re.sub(r"\bversionCode\s*=?\s*\d+", "versionCode 220" if target.suffix == ".gradle" else "versionCode = 220", text, count=1)
+    text = re.sub(r"\bversionCode\s*=?\s*\d+", "versionCode 230" if target.suffix == ".gradle" else "versionCode = 230", text, count=1)
 else:
     raise SystemExit("versionCode declaration not found")
 if re.search(r"\bversionName\s*=?\s*['\"][^'\"]+['\"]", text):
-    text = re.sub(r"\bversionName\s*=?\s*['\"][^'\"]+['\"]", 'versionName "2.2.0"' if target.suffix == ".gradle" else 'versionName = "2.2.0"', text, count=1)
+    text = re.sub(r"\bversionName\s*=?\s*['\"][^'\"]+['\"]", 'versionName "2.3.0"' if target.suffix == ".gradle" else 'versionName = "2.3.0"', text, count=1)
 else:
     raise SystemExit("versionName declaration not found")
 target.write_text(text, encoding="utf-8")
-print(f"Set Android versionCode=220, versionName=2.2.0 in {target}")
+print(f"Set Android versionCode=230, versionName=2.3.0 in {target}")

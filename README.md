@@ -1,3 +1,7 @@
+## v2.3.0 – Realistic Aquascape
+
+This release focuses on a more natural 3D aquarium: detailed procedural fish anatomy, more organic aquatic plants, irregular stones and improved physically based water and lighting. Choose Low, Medium, High or Ultra in Settings to balance visual quality and device performance.
+
 # Aquarium World v2.1.0 — Realistic 3D
 
 Nâng cấp trực tiếp từ source v1.0.0. Một codebase dùng cho Web/PWA và Android qua Capacitor.
@@ -87,6 +91,11 @@ The GitHub Actions workflow performs the icon installation automatically.
 ### Scheduling limitation
 Android schedules a native daily reminder even when the app is closed. Automatic in-game food-state changes are applied while the game is running or when it next resumes; the OS notification itself does not run JavaScript game logic while the app process is stopped. On Web/PWA, reminders require the page to be open because browser-only scheduled notifications cannot be guaranteed in the background without a push server.
 
+## v2.3.0 – Realistic Aquascape
+- Reworked fish models with higher-detail bodies, articulated fin shapes, eyes, gill details and scale highlights.
+- Replaced primitive plant forms with curved stems and lance-shaped leaves; improved carpet vegetation, rocks, driftwood, water material and lighting.
+- Added Low / Medium / High / Ultra 3D graphics quality controls.
+
 ## v2.2.0 – Aquascape Studio
 - Added free-design mode for the 3D aquarium.
 - Tap/select and drag owned plants, decorations, fish and invertebrates in the tank.
@@ -96,4 +105,4 @@ Android schedules a native daily reminder even when the app is closed. Automatic
 - Studio mode temporarily pauses fish/invertebrate swimming so the player can position them precisely.
 - Added mobile touch/pointer interactions and a responsive editing toolbar.
 
-- Android Gradle version is synchronized to `versionCode 220` and `versionName 2.2.0` during CI so the installed app version matches the ZIP and APK filename.
+- Android Gradle version is synchronized to `versionCode 230` and `versionName 2.3.0` during CI so the installed app version matches the ZIP and APK filename.
