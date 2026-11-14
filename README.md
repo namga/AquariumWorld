@@ -1,4 +1,4 @@
-# Aquarium World v2.0.2 — Realistic 3D
+# Aquarium World v2.1.0 — Realistic 3D
 
 Nâng cấp trực tiếp từ source v1.0.0. Một codebase dùng cho Web/PWA và Android qua Capacitor.
 
@@ -64,3 +64,36 @@ Three.js được đóng gói vào bundle Vite nên mô hình 3D không cần t�
 - Added `vite.config.js` with `root: src`, `publicDir: public`, and output directory `dist`.
 - Updated dev/build/preview scripts to use this config and use relative asset base paths for Web/PWA and Capacitor.
 - GitHub Actions artifacts are versioned v2.0.3.
+
+## v2.1.0 – Living Aquarium update
+- Added a designed app icon: PWA PNG icons (192/512 px), Apple touch icon, Android density icons and adaptive launcher icon.
+- Android workflow installs the native launcher icon resources after Capacitor creates the Android project.
+- Added daily feeding reminder settings. Android uses Capacitor Local Notifications; Web notifications and in-page feeding run while the page is open. When the app is reopened, a missed scheduled feeding is caught up.
+- Added aquarium photo capture, local album thumbnails, individual downloads and album export.
+- Added Bright, Ocean and Dark themes.
+- Added shrimp, nerite snail and mini crab procedural 3D models, plus Java fern, Vallisneria, Anubias, red stem plants, moss and hornwort.
+- Added coral, driftwood, cave and underwater temple decorations.
+- Fish and invertebrate age is based on wall-clock time; their displayed age, 3D scale and color progression update even when the app is closed. Plant growth is tied to aquarium age.
+- Added `@capacitor/local-notifications` for native Android reminders.
+
+### Android icons and build
+After `npx cap add android`, run:
+```bash
+python3 scripts/install-android-icons.py
+npx cap sync android
+```
+The GitHub Actions workflow performs the icon installation automatically.
+
+### Scheduling limitation
+Android schedules a native daily reminder even when the app is closed. Automatic in-game food-state changes are applied while the game is running or when it next resumes; the OS notification itself does not run JavaScript game logic while the app process is stopped. On Web/PWA, reminders require the page to be open because browser-only scheduled notifications cannot be guaranteed in the background without a push server.
+
+## v2.2.0 – Aquascape Studio
+- Added free-design mode for the 3D aquarium.
+- Tap/select and drag owned plants, decorations, fish and invertebrates in the tank.
+- Rotate selected objects in 15-degree steps; scale from 35% to 280%; remove selected objects.
+- Add extra copies of already-owned plants and decorations from the in-game Studio palette.
+- Save and restore item positions, rotations and scale in the local game save and JSON backup.
+- Studio mode temporarily pauses fish/invertebrate swimming so the player can position them precisely.
+- Added mobile touch/pointer interactions and a responsive editing toolbar.
+
+- Android Gradle version is synchronized to `versionCode 220` and `versionName 2.2.0` during CI so the installed app version matches the ZIP and APK filename.

@@ -58,8 +58,14 @@ jobs:
             npx cap add android
           fi
 
+      - name: Install Aquarium World Android launcher icons
+        run: python3 scripts/install-android-icons.py
+
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Synchronize Android app version
+        run: python3 scripts/set-android-version.py
 
       - name: Build debug APK
         working-directory: android
@@ -71,20 +77,20 @@ jobs:
         run: |
           mkdir -p release
           cp android/app/build/outputs/apk/debug/app-debug.apk \
-            release/Aquarium-World-v2.0.3-debug.apk
+            release/Aquarium-World-v2.2.0-debug.apk
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-World-v2.0.3-Android-APK
-          path: release/Aquarium-World-v2.0.3-debug.apk
+          name: Aquarium-World-v2.2.0-Android-APK
+          path: release/Aquarium-World-v2.2.0-debug.apk
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload Web build
         uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-World-v2.0.3-Web
+          name: Aquarium-World-v2.2.0-Web
           path: dist/
           if-no-files-found: error
           retention-days: 14

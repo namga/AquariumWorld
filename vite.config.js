@@ -1,16 +1,16 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// The HTML entry point lives in src/, while PWA static assets live in public/.
+const projectRoot = dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
-  root: resolve(__dirname, 'src'),
+  root: resolve(projectRoot, 'src'),
   base: './',
-  publicDir: resolve(__dirname, 'public'),
+  publicDir: resolve(projectRoot, 'public'),
   build: {
-    outDir: resolve(__dirname, 'dist'),
+    outDir: resolve(projectRoot, 'dist'),
     emptyOutDir: true
   },
-  server: {
-    host: '0.0.0.0'
-  }
+  server: { host: '0.0.0.0' }
 });
