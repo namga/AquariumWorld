@@ -58,3 +58,9 @@ Three.js được đóng gói vào bundle Vite nên mô hình 3D không cần t�
 - Uses `android-actions/setup-android@v4` and pins command-line tools 13.0 to avoid the failing default SDK manager revision observed in the previous GitHub Actions run.
 - Installs Android SDK Platform 35 and Build Tools 35.0.0 explicitly.
 - APK artifact is named `Aquarium-World-v2.0.2-debug.apk`.
+
+## v2.0.3 – Fix Vite entry module
+- Vite previously searched for `index.html` in the repository root, but the actual entry is `src/index.html`.
+- Added `vite.config.js` with `root: src`, `publicDir: public`, and output directory `dist`.
+- Updated dev/build/preview scripts to use this config and use relative asset base paths for Web/PWA and Capacitor.
+- GitHub Actions artifacts are versioned v2.0.3.
