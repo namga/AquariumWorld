@@ -1,3 +1,7 @@
+## v2.3.3 – Fish Scale Balance
+- Reduced fish sprite sizes substantially and introduced per-species scale values so small tropical fish remain small while larger species are proportionate to the tank.
+- Preserved fish swimming, growth scaling, and Aquascape Studio placement.
+
 ## v2.3.2 – Android Aquarium Render Fix
 - Fixed missing scene-state declarations that caused the animation loop to throw before rendering, leaving the Android aquarium as an empty gradient.
 - Resolved bundled fish texture URLs against Vite's relative base path for Capacitor Android builds.
@@ -9,7 +13,7 @@
 - Added species-to-artwork mapping, preserved fish counts, growth scaling and Aquascape Studio object placement.
 - Fish artwork flips horizontally as fish swim in either direction; swimming retains gentle vertical motion.
 - Added local bundled assets under `public/assets/fish` so the aquarium works offline without remote image requests.
-- Android CI version synchronized to `versionCode 232` / `versionName 2.3.2`.
+- Android CI version synchronized to `versionCode 233` / `versionName 2.3.3`.
 
 ## v2.3.0 – Realistic Aquascape
 

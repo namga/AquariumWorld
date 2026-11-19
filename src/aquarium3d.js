@@ -148,7 +148,14 @@ export function createAquarium(host) {
     const sprite=new THREE.Sprite(material);
     const dimensions=texture.image;
     const aspect=dimensions?.width&&dimensions?.height?dimensions.width/dimensions.height:(fishAspect[file]||1.6);
-    const width=species==='betta'?1.45:species==='clown'?1.45:1.65;
+    // Keep fish visually proportional to the 10-unit aquarium width.
+    // Small community fish stay compact; larger species scale up gradually.
+    const fishWidths={
+      guppy:.72, neon:.68, gold:.78, angelfish:.88, clown:.72, discus:.86,
+      betta:.72, tang:.94, lionfish:1.02, grouper:1.12, shark:1.18,
+      moray:1.02, manta:1.12
+    };
+    const width=fishWidths[species]||.78;
     sprite.scale.set(width,width/aspect,1);
     sprite.position.set(0,0,0);
     group.add(sprite);

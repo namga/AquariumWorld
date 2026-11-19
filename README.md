@@ -1,9 +1,9 @@
-## v2.3.2 – Colorful Fish Artwork
+## v2.3.3 – Colorful Fish Artwork
 
 - Fish now use colorful transparent PNG artwork bundled locally from the user-provided YUMY source instead of low-poly procedural body meshes.
 - Species mapping covers guppy, neon, gold, angelfish, clownfish, discus, betta and additional marine species.
 - Artwork is bundled for offline use; fish continue to swim, flip direction and scale with age.
-- CI version: `versionCode 232`, `versionName 2.3.2`.
+- CI version: `versionCode 233`, `versionName 2.3.3`.
 
 ## v2.3.0 – Realistic Aquascape
 
