@@ -92,7 +92,14 @@ export function createAquarium(host) {
 
   // Colorful fish artwork sourced from the user's supplied YUMY project.
   // Transparent PNG sprites replace the former low-poly procedural fish.
+  // Keep the scene/studio state declared independently from the fish renderer.
   const fishMeshes=[];
+  const invertMeshes=[];
+  const extraPlantGroups=[];
+  const decorGroups=[];
+  const studioObjects=new Map();
+  let selectedStudioKey=null, studioEnabled=false, dragState=null;
+  let growthDays=0;
   const fishTextureLoader=new THREE.TextureLoader();
   const fishTextureCache=new Map();
   const fishAspect={ 'minnow.png':2.21,'blue-tang.png':1.84,'yellow-tang.png':1.68,'player_0.png':1.50,'player_5.png':1.50,'clownfish.png':1.59,'lionfish.png':1.08,'grouper.png':2.05,'shark.png':1.65,'moray.png':1.44,'manta.png':1.59 };
@@ -104,7 +111,8 @@ export function createAquarium(host) {
   };
   function fishTexture(file){
     if(!fishTextureCache.has(file)){
-      const tex=fishTextureLoader.load(`/assets/fish/${file}`);
+      const base=(import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : './';
+      const tex=fishTextureLoader.load(`${base}assets/fish/${file}`);
       tex.colorSpace=THREE.SRGBColorSpace;
       tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
       fishTextureCache.set(file,tex);
