@@ -1,3 +1,11 @@
+## v2.3.1 – Colorful Fish Artwork
+- Replaced the low-poly procedural fish bodies with transparent, high-resolution fish artwork from the user-provided YUMY source.
+- Added colorful clownfish, yellow tang, blue tang, lionfish, grouper, shark, moray, manta and minnow artwork.
+- Added species-to-artwork mapping, preserved fish counts, growth scaling and Aquascape Studio object placement.
+- Fish artwork flips horizontally as fish swim in either direction; swimming retains gentle vertical motion.
+- Added local bundled assets under `public/assets/fish` so the aquarium works offline without remote image requests.
+- Android CI version synchronized to `versionCode 231` / `versionName 2.3.1`.
+
 ## v2.3.0 – Realistic Aquascape
 
 - Reworked procedural fish with higher-resolution body meshes, sculpted tail/dorsal/anal/pectoral fins, eyes, gill details and subtle scale highlights.

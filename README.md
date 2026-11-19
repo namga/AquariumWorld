@@ -1,3 +1,10 @@
+## v2.3.1 – Colorful Fish Artwork
+
+- Fish now use colorful transparent PNG artwork bundled locally from the user-provided YUMY source instead of low-poly procedural body meshes.
+- Species mapping covers guppy, neon, gold, angelfish, clownfish, discus, betta and additional marine species.
+- Artwork is bundled for offline use; fish continue to swim, flip direction and scale with age.
+- CI version: `versionCode 231`, `versionName 2.3.1`.
+
 ## v2.3.0 – Realistic Aquascape
 
 This release focuses on a more natural 3D aquarium: detailed procedural fish anatomy, more organic aquatic plants, irregular stones and improved physically based water and lighting. Choose Low, Medium, High or Ultra in Settings to balance visual quality and device performance.
@@ -106,3 +113,6 @@ Android schedules a native daily reminder even when the app is closed. Automatic
 - Added mobile touch/pointer interactions and a responsive editing toolbar.
 
 - Android Gradle version is synchronized to `versionCode 230` and `versionName 2.3.0` during CI so the installed app version matches the ZIP and APK filename.
+
+### Fish artwork source
+The colorful transparent fish PNGs in `public/assets/fish/` were reused from the YUMY Ocean source ZIP supplied by the project owner for this integration. They are bundled locally; no remote asset hosting is required.

@@ -90,40 +90,71 @@ export function createAquarium(host) {
   for(let i=0;i<320;i++){dummy.position.set((Math.random()-.5)*9.2,.39,(Math.random()-.5)*4.1);dummy.rotation.set(0,Math.random()*Math.PI,0);dummy.scale.set(.55+Math.random()*.8,.5+Math.random(),.7+Math.random()*.8);dummy.updateMatrix();carpet.setMatrixAt(i,dummy.matrix)}
   carpet.instanceMatrix.needsUpdate=true;carpet.receiveShadow=true;root.add(carpet);
 
-  // Fish models assembled from procedural geometry; no external models/textures.
-  const fishMats=[0xf29b51,0xf1c95e,0x4ec7c6,0xe88a9c,0x7aa8e8,0xe8e3c9,0xef7d43];
+  // Colorful fish artwork sourced from the user's supplied YUMY project.
+  // Transparent PNG sprites replace the former low-poly procedural fish.
   const fishMeshes=[];
-  const invertMeshes=[];
-  const extraPlantGroups=[];
-  const decorGroups=[];
-  const studioObjects=new Map();
-  let selectedStudioKey=null, studioEnabled=false, dragState=null;
-  let growthDays=0;
+  const fishTextureLoader=new THREE.TextureLoader();
+  const fishTextureCache=new Map();
+  const fishAspect={ 'minnow.png':2.21,'blue-tang.png':1.84,'yellow-tang.png':1.68,'player_0.png':1.50,'player_5.png':1.50,'clownfish.png':1.59,'lionfish.png':1.08,'grouper.png':2.05,'shark.png':1.65,'moray.png':1.44,'manta.png':1.59 };
+  const fishArtwork={
+    guppy:'minnow.png', neon:'blue-tang.png', gold:'yellow-tang.png',
+    angelfish:'player_0.png', clown:'clownfish.png', discus:'player_5.png',
+    betta:'lionfish.png', tang:'blue-tang.png', lionfish:'lionfish.png',
+    grouper:'grouper.png', shark:'shark.png', moray:'moray.png', manta:'manta.png'
+  };
+  function fishTexture(file){
+    if(!fishTextureCache.has(file)){
+      const tex=fishTextureLoader.load(`/assets/fish/${file}`);
+      tex.colorSpace=THREE.SRGBColorSpace;
+      tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+      fishTextureCache.set(file,tex);
+    }
+    return fishTextureCache.get(file);
+  }
   function makeFish(color,index){
     const group=new THREE.Group();
-    const mat=new THREE.MeshPhysicalMaterial({color,roughness:.24,metalness:.02,clearcoat:.75,clearcoatRoughness:.18});
-    const finMat=new THREE.MeshPhysicalMaterial({color,roughness:.3,transparent:true,opacity:.88,side:THREE.DoubleSide,clearcoat:.45});
-    const body=new THREE.Mesh(new THREE.SphereGeometry(.34,40,28),mat);body.scale.set(1.48,.78,.68);body.castShadow=true;group.add(body);
-    const finShape=new THREE.Shape();finShape.moveTo(0,0);finShape.quadraticCurveTo(-.18,.23,-.72,.43);finShape.quadraticCurveTo(-.57,.06,-.74,-.42);finShape.quadraticCurveTo(-.25,-.2,0,0);
-    const tail=new THREE.Mesh(new THREE.ShapeGeometry(finShape,14),finMat);tail.position.x=-.43;tail.position.z=.015;tail.scale.set(1,.92,1);group.add(tail);group.userData.tail=tail;
-    const dorsalShape=new THREE.Shape();dorsalShape.moveTo(-.32,.17);dorsalShape.quadraticCurveTo(-.05,.68,.35,.25);dorsalShape.lineTo(.12,.12);dorsalShape.closePath();const dorsal=new THREE.Mesh(new THREE.ShapeGeometry(dorsalShape,12),finMat);dorsal.position.z=0;group.add(dorsal);
-    const anal=new THREE.Mesh(new THREE.ShapeGeometry(dorsalShape,10),finMat);anal.rotation.z=Math.PI;anal.position.set(-.08,-.08,0);group.add(anal);
-    for(const side of [-1,1]){
-      const pectoral=new THREE.Mesh(new THREE.SphereGeometry(.13,16,10),finMat);pectoral.scale.set(.35,.95,.12);pectoral.position.set(.02,-.02,side*.22);pectoral.rotation.z=-.45;group.add(pectoral);
-      const gill=new THREE.Mesh(new THREE.TorusGeometry(.13,.012,5,24,Math.PI*.85),new THREE.MeshStandardMaterial({color:0x805b48,roughness:.7}));gill.position.set(.22,-.01,side*.215);gill.rotation.y=side*Math.PI/2;gill.rotation.z=.4;group.add(gill);
-      const eyeWhite=new THREE.Mesh(new THREE.SphereGeometry(.052,14,12),new THREE.MeshStandardMaterial({color:0xf5f0df,roughness:.25}));eyeWhite.position.set(.31,.1,side*.205);group.add(eyeWhite);
-      const pupil=new THREE.Mesh(new THREE.SphereGeometry(.027,12,10),new THREE.MeshStandardMaterial({color:0x101d25,roughness:.12}));pupil.position.set(.34,.1,side*.247);group.add(pupil);
-      const glint=new THREE.Mesh(new THREE.SphereGeometry(.009,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));glint.position.set(.35,.115,side*.268);group.add(glint);
-    }
-    // Subtle overlapping scale glints give the body a living, iridescent surface.
-    const scaleMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.3,metalness:.18,transparent:true,opacity:.22});
-    for(let row=0;row<3;row++)for(let col=0;col<7;col++){
-      const sx=-.28+col*.09,sy=-.18+row*.16;const zside=Math.sqrt(Math.max(.03,1-(sx/.52)**2-(sy/.25)**2))*.225;
-      const scale=new THREE.Mesh(new THREE.SphereGeometry(.027,8,6),scaleMat);scale.scale.set(1,.58,.16);scale.position.set(sx,sy,zside);group.add(scale);
-    }
-    group.userData.phase=Math.random()*Math.PI*2;group.userData.speed=.45+Math.random()*.45;group.userData.radius=.8+Math.random()*2.5;group.userData.baseY=1.45+Math.random()*1.7;group.userData.offset=Math.random()*Math.PI*2;return group;
+    group.userData.phase=Math.random()*Math.PI*2;
+    group.userData.speed=.32+Math.random()*.35;
+    group.userData.radius=.8+Math.random()*2.5;
+    group.userData.baseY=1.35+Math.random()*1.75;
+    group.userData.offset=Math.random()*Math.PI*2;
+    group.userData.sprite=null;
+    group.userData.species='guppy';
+    return group;
   }
-  function setFishCount(n){while(fishMeshes.length<n){const i=fishMeshes.length;const f=makeFish(fishMats[i%fishMats.length],i);fishMeshes.push(f);root.add(f)}while(fishMeshes.length>n){root.remove(fishMeshes.pop())}}
+  function applyFishArtwork(group,species,index){
+    const file=fishArtwork[species]||'minnow.png';
+    group.userData.species=species;
+    while(group.children.length){
+      const old=group.children[0];
+      group.remove(old);
+      if(old.material){old.material.map?.dispose();old.material.dispose();}
+    }
+    const texture=fishTexture(file);
+    const spriteMap=texture.clone();
+    spriteMap.wrapS=THREE.RepeatWrapping;
+    const material=new THREE.SpriteMaterial({
+      map:spriteMap,transparent:true,alphaTest:.035,depthWrite:false,side:THREE.DoubleSide,
+      color:0xffffff,toneMapped:false
+    });
+    const sprite=new THREE.Sprite(material);
+    const dimensions=texture.image;
+    const aspect=dimensions?.width&&dimensions?.height?dimensions.width/dimensions.height:(fishAspect[file]||1.6);
+    const width=species==='betta'?1.45:species==='clown'?1.45:1.65;
+    sprite.scale.set(width,width/aspect,1);
+    sprite.position.set(0,0,0);
+    group.add(sprite);
+    group.userData.sprite=sprite;
+    group.userData.textureFile=file;
+  }
+  function setFishCount(n){
+    while(fishMeshes.length<n){
+      const i=fishMeshes.length;
+      const f=makeFish(0xffffff,i);
+      fishMeshes.push(f);root.add(f);
+    }
+    while(fishMeshes.length>n){root.remove(fishMeshes.pop())}
+  }
   setFishCount(3);
 
   function makeInvert(kind,index){
@@ -156,12 +187,11 @@ export function createAquarium(host) {
     const fishIds=fishEntries.map(x=>x.id);
     setFishCount(Math.max(0,fishIds.length));
     fishMeshes.forEach((f,i)=>{studioObjects.set(`fish:${fishIds[i]}:${fishEntries[i].index}`,f)});
-    const colors={guppy:0x319bb0,neon:0x25c7d5,gold:0xe7ad42,angelfish:0xd8d2bd,clown:0xf07c35,discus:0xd46d67,betta:0x8b6acb};
     fishMeshes.forEach((f,i)=>{
       f.userData.ageDays=Number(ages[fishEntries[i].index]??growthDays)||0;
       f.userData.studioKey=`fish:${fishIds[i]}:${fishEntries[i].index}`;
       const species=fishIds[i];
-      if(colors[species]&&f.children[0]?.material){f.children[0].material.color.setHex(colors[species]);f.children[0].material.userData.baseColor=new THREE.Color(colors[species]);}
+      applyFishArtwork(f,species,i);
       const saved=layout[f.userData.studioKey];
       if(saved){f.position.set(saved.x,saved.y,saved.z);f.rotation.y=saved.ry||0;f.scale.setScalar(saved.scale||1);}
       const t=clock.getElapsedTime(),u=f.userData;
@@ -343,7 +373,7 @@ export function createAquarium(host) {
   function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   function animate(){raf=requestAnimationFrame(animate);const t=clock.getElapsedTime();
-    if(!studioEnabled)fishMeshes.forEach((f,i)=>{const u=f.userData;const a=t*u.speed+u.offset;f.position.set(Math.sin(a)*u.radius, u.baseY+Math.sin(a*1.7)*.24, Math.cos(a*.72)*1.35).add(u.studioOffset||new THREE.Vector3());const dx=Math.cos(a)*u.radius*u.speed,dz=-Math.sin(a*.72)*.97;f.rotation.y=Math.atan2(dx,dz);f.rotation.z=Math.sin(t*4+u.phase)*.045;u.tail.rotation.y=Math.sin(t*12+u.phase)*.5;});
+    if(!studioEnabled)fishMeshes.forEach((f,i)=>{const u=f.userData;const a=t*u.speed+u.offset;f.position.set(Math.sin(a)*u.radius, u.baseY+Math.sin(a*1.7)*.24, Math.cos(a*.72)*1.35).add(u.studioOffset||new THREE.Vector3());const dx=Math.cos(a)*u.radius*u.speed,dz=-Math.sin(a*.72)*.97;f.rotation.y=0;f.rotation.z=Math.sin(t*2.1+u.phase)*.025;if(u.sprite?.material?.map){u.sprite.material.map.repeat.x=dx<0?-1:1;u.sprite.material.map.offset.x=dx<0?1:0;}});
     if(!studioEnabled)invertMeshes.forEach((o,i)=>{const u=o.userData;o.position.x+=Math.sin(t*.35+u.phase)*.0018;o.rotation.y=Math.sin(t*.7+u.phase)*.12;if(u.kind==='shrimp')o.position.y=.42+Math.sin(t*1.4+u.phase)*.035;});
     bubbles.forEach(b=>{b.position.y+=b.userData.speed*.012;if(b.position.y>4.5){b.position.y=.45;b.position.x=(Math.random()-.5)*8}b.position.x+=Math.sin(t*1.3+b.userData.phase)*.0015});
     plantGroups.forEach((g,i)=>{g.rotation.z=Math.sin(t*.8+i)*.018});controls.update();renderer.render(scene,camera)}
